@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "esModuleInterop":true,
+    "esModuleInterop": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -13,17 +13,20 @@
     "baseUrl": "./",
     "rootDir": "./",
     "incremental": true,
-    "moduleResolution":"node",
+    "moduleResolution": "node",
     "noImplicitAny": false,
-    "types": ["node"],
- 
+    "types": [
+      "node"
+    ],
+    "resolveJsonModule": true
   },
   "include": [
-    "./**/*"
+    "./**/*",
+    "src/**/*.ts"
   ],
   "exclude": [
-      "./plugins/**/*",
-      "./typings/**/*",
-      "./dist/**/*",
+    "./plugins/**/*",
+    "./typings/**/*",
+    "./dist/**/*",
   ]
 }
