@@ -1,15 +1,15 @@
 import express from 'express';
-import { checkIfAuthenticated } from '../services/firebaseAuthService';
+import { checkIfAuthenticated, getAuthToken } from '../services/firebaseAuthService';
 var usersRouter = express.Router();
 
 /* GET users listing. */
-usersRouter.get('/token', function (req, res, next) {
-  res.send('respond with a resource');
+usersRouter.get('/token', getAuthToken, function (req, res, next) {
+
 });
 
 /* GET for testing authentication */
 usersRouter.get('/check-auth', checkIfAuthenticated, function (req, res, next) {
-  res.send('respond with a resource');
+  res.send('you are authorized...!');
 });
 
 export default usersRouter;
