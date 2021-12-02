@@ -29,3 +29,21 @@ export const checkIfAuthenticated = (req, res, next) => {
         }
     });
 };
+
+
+export async function getTokenWithEmail(req, res, next){
+    const {email}=req.query;
+
+    try{
+    const userRecord=await firebase.auth().getUserByEmail(email)
+    console.log(`Successfully fetched user data: ${userRecord.toJSON()}`)
+    const token= await firebase.auth().createCustomToken(userRecord.uid)
+    res.statusCode=200;
+    res.send(token)
+    }
+    catch(err){
+        next(err)
+    }
+  
+}
+

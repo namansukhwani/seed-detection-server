@@ -4,6 +4,9 @@ import * as serviceAccount from '../serviceAccountKey.json';
 
 firebase.initializeApp({
     credential: firebase.credential.cert(<ServiceAccount>serviceAccount),
+    storageBucket:"seed-detection-de9f8.appspot.com"
 })
 
-export default firebase;
+export const bucket = firebase.storage().bucket()
+export const db=firebase.firestore()
+export default firebase
