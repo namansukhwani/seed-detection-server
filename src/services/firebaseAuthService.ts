@@ -12,6 +12,19 @@ export const getAuthToken = (req, res, next) => {
     next();
 };
 
+export const getNewAuthToken = async (req, res, next) => {
+    if (!req.headers.uid) {
+        res.send({
+            status: 'failed',
+            msg: "please send uid..."
+        })
+    } else {
+        const token = await firebase.auth().createCustomToken(req.headers.uid);
+        res.send({
+            token: token
+        });
+    }
+};
 
 export const checkIfAuthenticated = (req, res, next) => {
     getAuthToken(req, res, async () => {
