@@ -26,6 +26,16 @@ export const getNewAuthToken = async (req, res, next) => {
     }
 };
 
+export const checkRestAuth = (req, res, next) => {
+    if (req.headers['x-user-id']) {
+        req.authId=req.headers['x-user-id']
+        return next();
+    }
+    else return res
+        .status(401)
+        .send({ error: 'You are not authorized to make this request' });
+}
+
 export const checkIfAuthenticated = (req, res, next) => {
     getAuthToken(req, res, async () => {
         try {
@@ -44,19 +54,19 @@ export const checkIfAuthenticated = (req, res, next) => {
 };
 
 
-export async function getTokenWithEmail(req, res, next){
-    const {email}=req.query;
+export async function getTokenWithEmail(req, res, next) {
+    const { email } = req.query;
 
-    try{
-    const userRecord=await firebase.auth().getUserByEmail(email)
-    console.log(`Successfully fetched user data: ${userRecord.toJSON()}`)
-    const token= await firebase.auth().createCustomToken(userRecord.uid)
-    res.statusCode=200;
-    res.send(token)
+    try {
+        const userRecord = await firebase.auth().getUserByEmail(email)
+        console.log(`Successfully fetched user data: ${userRecord.toJSON()}`)
+        const token = await firebase.auth().createCustomToken(userRecord.uid)
+        res.statusCode = 200;
+        res.send(token)
     }
-    catch(err){
+    catch (err) {
         next(err)
     }
-  
+
 }
 

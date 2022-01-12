@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import Multer from 'multer'
-import { checkIfAuthenticated } from '../services/firebaseAuthService';
+import { checkIfAuthenticated, checkRestAuth } from '../services/firebaseAuthService';
 import { uploadeFileFirestore } from '../services/firebaseUploadService';
 import firebase,{db} from '../services/Firebase.service'
 import axios from 'axios';
@@ -44,9 +44,10 @@ qualityDetectionRouter.post('/',checkIfAuthenticated,multer.single('file'), (req
 
             db.collection('user').doc(req.authId).collection('results').add(newResult)
             .then(async value=>{
-                axios.post(mlServiceUrl,{
-                    url:url
-                })
+                // axios.post(mlServiceUrl,{
+                //     url:url
+                // })
+                Promise.resolve()
                 .then(response=>{
                     const responseMapped=qualityResponse(response)
                     const qualityResponseMapping={
@@ -76,7 +77,7 @@ qualityDetectionRouter.post('/',checkIfAuthenticated,multer.single('file'), (req
                         }
                     })
                 })
-                .catch()
+                .catch(err=>next(err))
             })
             .catch(err=>next(err))
         })
@@ -93,9 +94,66 @@ qualityDetectionRouter.post('/',checkIfAuthenticated,multer.single('file'), (req
     }
 })
 
-qualityDetectionRouter.post('/getResults', (req, res, next) => {
+qualityDetectionRouter.post('/getResults',checkRestAuth ,multer.single('file'),(req:any, res, next) => {
     let file = req.file;
-    if (file) {}
+    if (file) {
+        uploadeFileFirestore(file, req.authId)
+        .then(url => {
+            const newResult={
+                imageUrl:url,
+                requestTime:firebase.firestore.Timestamp.now(),
+                response:false
+            }
+
+            db.collection('user').doc(req.authId).collection('results').add(newResult)
+            .then(async value=>{
+                axios.post(mlServiceUrl,{
+                    url:url
+                })
+                .then(response=>{
+                    const responseMapped=qualityResponse(response.data)
+                    const qualityResponseMapping={
+                        averageQuality:responseMapped,
+                        grade:QualityMapping[responseMapped],
+                        maximumQualityInGroup:maxQualityMapper(response.data)
+                    }
+
+                    const updateResult={
+                        timeTaken:moment(newResult.requestTime.toDate()).diff(moment(),'milliseconds'),
+                        responseTime:firebase.firestore.Timestamp.now(),
+                        responseValue:qualityResponseMapping,
+                        response:true
+                    }
+
+                    db.collection('user').doc(req.authId).collection('results').doc(value.id).update(updateResult)
+
+                    res.statusCode=200
+                    res.send({
+                        status:true,
+                        data:{
+                            quality:qualityResponseMapping,
+                            result:{
+                                ...newResult,
+                                ...updateResult
+                            }
+                        }
+                    })
+                })
+                .catch(err=>next(err))
+            })
+            .catch(err=>next(err))
+        })
+        .catch(err=>{
+            console.log(err);
+            res.statusCode = 401;
+            res.json({ status: false, err: 'unable to upload the image' });
+        }   
+        )
+    }
+    else{
+        res.statusCode = 401;
+        res.json({ status: false, err: 'file not found for upload' });
+    }
 })
 
 export default qualityDetectionRouter
