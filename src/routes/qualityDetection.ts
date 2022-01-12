@@ -44,10 +44,9 @@ qualityDetectionRouter.post('/',checkIfAuthenticated,multer.single('file'), (req
 
             db.collection('user').doc(req.authId).collection('results').add(newResult)
             .then(async value=>{
-                // axios.post(mlServiceUrl,{
-                //     url:url
-                // })
-                Promise.resolve()
+                axios.post(mlServiceUrl,{
+                    url:url
+                })
                 .then(response=>{
                     const responseMapped=qualityResponse(response)
                     const qualityResponseMapping={
