@@ -6,7 +6,7 @@ import { uploadeFileFirestore } from '../services/firebaseUploadService';
 import firebase,{db} from '../services/Firebase.service'
 import axios from 'axios';
 import moment from 'moment';
-import { maxQualityMapper, QualityMapping, qualityResponse } from '../data/QualityMapping';
+import { maxQualityMapper, QualityMapping } from '../data/QualityMapping';
 
 var qualityDetectionRouter = express.Router();
 
@@ -48,7 +48,7 @@ qualityDetectionRouter.post('/',checkIfAuthenticated,multer.single('file'), (req
                     url:url
                 })
                 .then(response=>{
-                    const responseMapped=qualityResponse(response)
+                    const responseMapped=response.data.data
                     const qualityResponseMapping={
                         averageQuality:responseMapped,
                         grade:QualityMapping[responseMapped],
@@ -110,7 +110,7 @@ qualityDetectionRouter.post('/getResults',checkRestAuth ,multer.single('file'),(
                     url:url
                 })
                 .then(response=>{
-                    const responseMapped=qualityResponse(response.data)
+                    const responseMapped=response.data.data
                     const qualityResponseMapping={
                         averageQuality:responseMapped,
                         grade:QualityMapping[responseMapped],

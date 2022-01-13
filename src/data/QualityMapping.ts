@@ -59,7 +59,5 @@ export const QualityMapping={
     }
 }
 
-export const qualityResponse=(response)=>Math.floor(Math.random()*(8-5)+5)
-
-export const maxQualityMapper=(response)=>Math.floor(Math.random()*(9-7)+7)
+export const maxQualityMapper=(response)=>Math.floor(Math.random()*(10-response.data.data)+response.data.data)
 
